@@ -50,12 +50,12 @@
 
 /* USER CODE BEGIN PV */
 sht3x_handle_t sht3x;
-LoRa myLoRa;
-uint16_t LoRa_status;
+LoRa myLoRa;							// Cấu trúc cấu hình LoRa
+uint16_t LoRa_status;					// Trạng thái khởi tạo LoRa
 char TxBuffer[256];
 char DebugBuffer[256];
-extern volatile uint8_t TxDoneFlag;
-volatile uint8_t TimerFlag = 0;
+extern volatile uint8_t TxDoneFlag;	    // Cờ báo ngắt TX Done từ LoRa (set trong callback EXTI)
+volatile uint8_t TimerFlag = 0;			// Cờ báo tick định kỳ từ TIM1 (set trong callback Timer)
 float temp, hum;
 uint16_t soil_raw = 0;
 float soil_vol = 0.0f;
@@ -64,7 +64,7 @@ float soil_vol = 0.0f;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-float SoilMoisture_Convert(uint16_t adc_value);
+float SoilMoisture_Convert(uint16_t adc_value);   // Hàm chuyển đổi giá trị ADC sang phần trăm độ ẩm đất
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -144,9 +144,10 @@ int main(void)
       while (1);
   }
 
-  LoRa_setSyncWord(&myLoRa, 0x34);
-  LoRa_setTOMsb_setCRCon(&myLoRa);
-  HAL_TIM_Base_Start_IT(&htim1);
+  LoRa_setSyncWord(&myLoRa, 0x34);		// Cấu hình Sync Word (mặc định mạng công cộng 0x34)
+  LoRa_setTOMsb_setCRCon(&myLoRa);		// Bật CRC cho payload, cấu hình phần đầu gói (TOMsb/CRCon tuỳ thư viện)
+  HAL_TIM_Base_Start_IT(&htim1);		// Bật Timer 1 ở chế độ ngắt định kỳ (chu kỳ cấu hình trong MX_TIM1_Init)
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -156,7 +157,7 @@ int main(void)
   while (1)
   {
 	  if (TimerFlag) {
-          TimerFlag = 0;
+          TimerFlag = 0;			// Xoá cờ để xử lý một lần cho mỗi chu kỳ timer
 
           // Đọc SHT3x
           if (sht3x_read_temperature_and_humidity(&sht3x, &temp, &hum)) {
@@ -245,11 +246,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
     if (GPIO_Pin == myLoRa.DIO0_pin)
     {
-        uint8_t irqFlags = LoRa_read(&myLoRa, RegIrqFlags);
+        uint8_t irqFlags = LoRa_read(&myLoRa, RegIrqFlags); // Đọc thanh ghi cờ ngắt của LoRa để kiểm tra sự kiện
         if (irqFlags & 0x08) {
-            TxDoneFlag = 1;
+            TxDoneFlag = 1;	// Set cờ để xử lý trong vòng lặp chính
+
         }
-        LoRa_write(&myLoRa, RegIrqFlags, irqFlags);
+        LoRa_write(&myLoRa, RegIrqFlags, irqFlags); // Xoá cờ ngắt trong LoRa
     }
 }
 
@@ -257,9 +259,19 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim->Instance == TIM1)
     {
-        TimerFlag = 1;
+        TimerFlag = 1;	// Báo vòng lặp chính thực hiện đo + gửi
+
     }
 }
+
+/**
+ * @brief Chuyển đổi giá trị ADC sang phần trăm độ ẩm đất (%Vol)
+ * @param adc_value: giá trị ADC thô (0..4095 tuỳ cấu hình)
+ * @note  Hiệu chuẩn giả định:
+ *        - 2500 -> 0% (khô)
+ *        - 830  -> 60% (ẩm)
+ *        Tuyến tính giữa hai điểm. Ngoài khoảng thì kẹp về biên.
+ */
 
 float SoilMoisture_Convert(uint16_t adc_value)
 {
