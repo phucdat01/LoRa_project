@@ -144,7 +144,7 @@ int main(void)
       while (1);
   }
 
-  LoRa_setSyncWord(&myLoRa, 0x34);		// Cấu hình Sync Word (mặc định mạng công cộng 0x34)
+  LoRa_setSyncWord(&myLoRa, 0x12);		// Cấu hình Sync Word
   LoRa_setTOMsb_setCRCon(&myLoRa);		// Bật CRC cho payload, cấu hình phần đầu gói (TOMsb/CRCon tuỳ thư viện)
   HAL_TIM_Base_Start_IT(&htim1);		// Bật Timer 1 ở chế độ ngắt định kỳ (chu kỳ cấu hình trong MX_TIM1_Init)
 
