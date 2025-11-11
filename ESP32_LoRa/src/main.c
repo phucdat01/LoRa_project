@@ -27,7 +27,7 @@ void app_main(void)
     lora_set_spreading_factor(7);
     lora_set_bandwidth(125E3);
     lora_set_coding_rate(5);
-    lora_set_sync_word(0x34);
+    lora_set_sync_word(0x12);
     lora_set_preamble_length(8);
     lora_enable_crc();
 
