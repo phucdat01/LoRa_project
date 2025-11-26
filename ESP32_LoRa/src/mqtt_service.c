@@ -5,11 +5,11 @@ static const char *TAG = "MQTT_SERVICE";
 static esp_mqtt_client_handle_t client = NULL;
 
 #ifndef MQTT_URI
-#define MQTT_URI "mqtt://thingsboard.cloud"
+#define MQTT_URI "mqtt://192.168.1.177:1883"
 #endif
 
 #ifndef ACCESS_TOKEN
-#define ACCESS_TOKEN "QjScOJql9M5MeFOEc1DJ"
+#define ACCESS_TOKEN "jTsyZsMdR8BWdVC7purO"
 #endif
 
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data) {

@@ -51,22 +51,28 @@ void app_main(void)
                            len, rx_buf, lora_packet_rssi(), lora_packet_snr());
 
                 float temp = 0, humi = 0, soil = 0;
-;
-                // Parse dữ liệu theo định dạng Node gửi: "T=xx.xC,RH=yy.y%,Soil=zz.z%Vol"
-                if (sscanf((char*)rx_buf, "T=%fC,RH=%f%%,Soil=%f%%Vol", &temp, &humi, &soil) == 3) {
-                    ESP_LOGI(TAG, "🌡 Temp=%.1f °C | 💧 Humi=%.1f %% | 🌱 Soil=%.1f %%Vol", temp, humi, soil);
-                    
+                int node_id = 0;
+
+                // Parse dữ liệu theo định dạng Node gửi: "ID=x,T=xx.xC,RH=yy.y%,Soil=zz.z%Vol"
+                if (sscanf((char*)rx_buf, "ID=%d,T=%fC,RH=%f%%,Soil=%f%%Vol",
+                           &node_id, &temp, &humi, &soil) == 4) {
+
+                    ESP_LOGI(TAG, "📡 Node=%d | 🌡 Temp=%.1f °C | 💧 Humi=%.1f %% | 🌱 Soil=%.1f %%Vol",
+                    node_id, temp, humi, soil);
+
                     // Chuẩn bị payload JSON để publish lên MQTT
-                    char payload[64];
+                    char payload[128];
                     snprintf(payload, sizeof(payload),
-                             "{\"temperature\":%.1f,\"humidity\":%.1f,\"soil\":%.1f}", temp, humi, soil);
-                    
+                            "{\"node\":%d,\"temperature\":%.1f,\"humidity\":%.1f,\"soil\":%.1f}",
+                            node_id, temp, humi, soil);
+
                     // Publish dữ liệu lên MQTT broker
                     mqtt_service_publish(payload);
 
-                } else {
-                    ESP_LOGW(TAG, "Không parse được dữ liệu Node gửi!");
-                }
+                    } else {
+                        ESP_LOGW(TAG, "Không parse được dữ liệu Node gửi!");
+                    }
+
 
                 // Đặt lại chế độ nhận
                 lora_receive();

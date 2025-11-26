@@ -38,7 +38,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define NODE_ID 2
+#define SEND_OFFSET_MS 5000
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -171,7 +172,11 @@ int main(void)
               HAL_ADC_Stop(&hadc1);
 
               // Chuẩn bị gói tin LoRa
-        	  snprintf(TxBuffer, sizeof(TxBuffer), "T=%.1fC,RH=%.1f%%,Soil=%.1f%%Vol", temp, hum, soil_vol);
+        	  snprintf(TxBuffer, sizeof(TxBuffer), "ID=%d,T=%.1fC,RH=%.1f%%,Soil=%.1f%%Vol", NODE_ID, temp, hum, soil_vol);
+
+        	  // Offset trước khi gửi
+        	  HAL_Delay(SEND_OFFSET_MS);
+
         	  LoRa_gotoMode(&myLoRa, STNBY_MODE);
         	  HAL_Delay(2);
         	  LoRa_transmit(&myLoRa, (uint8_t*)TxBuffer, strlen(TxBuffer));
