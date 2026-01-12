@@ -6,8 +6,10 @@
 #include "soc/gpio_struct.h"
 #include "driver/gpio.h"
 #include <string.h>
+#include "esp_log.h"
+#include <stdio.h>
 
-
+static const char *TAG_LORA = "LORA_LIB";
 #define CONFIG_MISO_GPIO 19
 #define CONFIG_MOSI_GPIO 23
 #define CONFIG_SCK_GPIO  18
@@ -391,12 +393,8 @@ lora_init(void)
  * @param buf Data to be sent
  * @param size Size of data.
  */
-void 
-lora_send_packet(uint8_t *buf, int size)
-{
-   /*
-    * Transfer data to radio.
-    */
+void lora_send_packet(uint8_t *buf, int size) {
+
    lora_idle();
    lora_write_reg(REG_FIFO_ADDR_PTR, 0);
 
@@ -405,12 +403,24 @@ lora_send_packet(uint8_t *buf, int size)
    
    lora_write_reg(REG_PAYLOAD_LENGTH, size);
    
-   /*
-    * Start transmission and wait for conclusion.
-    */
    lora_write_reg(REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_TX);
-   while((lora_read_reg(REG_IRQ_FLAGS) & IRQ_TX_DONE_MASK) == 0)
-      vTaskDelay(2);
+   vTaskDelay(pdMS_TO_TICKS(10));
+
+   int timeout = 0;
+   while ((lora_read_reg(REG_IRQ_FLAGS) & IRQ_TX_DONE_MASK) == 0) {
+      vTaskDelay(pdMS_TO_TICKS(10)); 
+      timeout++;
+      
+      // Nếu chờ quá 2 giây -> Tự thoát
+      if (timeout > 200) { 
+          ESP_LOGE(TAG_LORA, "!! LOI: TREO TAO VONG LAP (TX TIMEOUT) !!");
+          break; 
+      }
+   }
+   
+   if (timeout <= 200) {
+       ESP_LOGI(TAG_LORA, ">> DONE! Gui thanh cong.");
+   }
 
    lora_write_reg(REG_IRQ_FLAGS, IRQ_TX_DONE_MASK);
 }
@@ -506,3 +516,4 @@ lora_dump_registers(void)
    }
    printf("\n");
 }
+

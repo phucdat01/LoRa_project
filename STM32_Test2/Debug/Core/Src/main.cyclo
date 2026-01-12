@@ -1,0 +1,16 @@
+../Core/Src/main.c:137:6:Read_All_ADC	4
+../Core/Src/main.c:164:9:Calculate_Battery_Percent	3
+../Core/Src/main.c:182:6:LowPower_Sleep_Millis	2
+../Core/Src/main.c:191:7:SoilMoisture_Convert	3
+../Core/Src/main.c:200:6:Flash_Write_ID	3
+../Core/Src/main.c:226:6:Flash_Read_ID	2
+../Core/Src/main.c:238:6:Serial_Printf	1
+../Core/Src/main.c:247:10:Get_ChipID	1
+../Core/Src/main.c:251:9:XOR_Calc	2
+../Core/Src/main.c:258:6:LoRa_Send_Data_HW	2
+../Core/Src/main.c:279:6:LoRa_Send_JoinReq_XOR	2
+../Core/Src/main.c:302:5:main	47
+../Core/Src/main.c:629:6:SystemClock_Config	4
+../Core/Src/main.c:668:6:HAL_GPIO_EXTI_Callback	4
+../Core/Src/main.c:683:6:HAL_TIM_PeriodElapsedCallback	2
+../Core/Src/main.c:696:6:Error_Handler	1
