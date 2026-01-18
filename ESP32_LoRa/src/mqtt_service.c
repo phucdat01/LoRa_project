@@ -5,7 +5,7 @@ static const char *TAG = "MQTT_SERVICE";
 static esp_mqtt_client_handle_t client = NULL;
 
 #ifndef MQTT_URI
-#define MQTT_URI "mqtt://192.168.1.177:1883"
+#define MQTT_URI /*"mqtt://10.45.123.32:1883"*/   "mqtt://192.168.1.177:1883"
 #endif
 
 #ifndef ACCESS_TOKEN
