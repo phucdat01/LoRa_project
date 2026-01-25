@@ -51,7 +51,7 @@ typedef struct __attribute__((packed)) {
     uint16_t cycleDuration;	 // Độ dài chu kỳ mạng (ví dụ 30s)
     uint16_t reportInterval; // Tần suất gửi báo cáo (ví dụ: 1 chu kỳ gửi 1 lần, hay 5 chu kỳ gửi 1 lần)
     uint8_t  checksum;		 // Byte kiểm tra lỗi
-} BeaconPacket_t; 			 // Tổng: 10 Bytes
+} BeaconPacket_t; 			 // Tổng: 12 Bytes
 
 typedef struct __attribute__((packed)) {
     uint8_t  type;			 // Loại gói tin (PKT_DATA = 2)
@@ -626,7 +626,7 @@ int main(void)
 	                  uint32_t next_beacon = last_beacon_tick + total_cycle_ms;
 
 	                  // Dự kiến dậy sớm 3 giây trước Beacon để đón lõng
-	                  uint32_t wake_time = next_beacon - 3000;
+	                  uint32_t wake_time = next_beacon - 500;
 
 	                  if ((int32_t)(wake_time - tdma_millis) > 0) {
 	                      LowPower_Sleep_Millis(wake_time - tdma_millis); 	// Ngủ dài
